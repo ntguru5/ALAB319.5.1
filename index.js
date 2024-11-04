@@ -1,5 +1,4 @@
 import express from "express";
-import mongoose from "mongoose";
 import "dotenv/config";
 import grades from './routes/grades.js';
 import grades_agg from "./routes/grades_agg.js";
@@ -7,10 +6,6 @@ import grades_agg from "./routes/grades_agg.js";
 
 const PORT = process.env.PORT || 3000
 const app = express();
-
-// connect to database
-await mongoose.connect(process.env.ATLAS_URI);
-console.log("Connected to Mongoose database");
 
 // Body parser middleware
 app.use(express.json())

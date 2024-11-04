@@ -44,7 +44,7 @@ router.get('/learner/:id', async (req, res, next) => {
 router.get('/class/:id', async (req, res, next) => {
   try {
     const classId = req.params.id;
-    const grades = await Grade.find({ class_id: Number(classId) });
+    const grades = await Grade.find({ class_id: parseInt(classId) });
     res.json(grades);
   } catch (err) {
     next(err);
@@ -54,7 +54,7 @@ router.get('/class/:id', async (req, res, next) => {
 // get learner average for EACH class
 router.get("/learner/:id/class/average", async (req, res, next) => {
   try {
-    let query = { learner_id: Number(req.params.id) }
+    let query = { learner_id: parseInt(req.params.id) }
     let learnerGrades = await Grade.find(query)
 
     const averages = learnerGrades.reduce((acc, grade) => {
@@ -84,7 +84,7 @@ router.get("/learner/:id/class/average", async (req, res, next) => {
 // to get overall average of a learner
 router.get("/learner/:id/average", async (req, res, next) => {
   try {
-    let query = { learner_id: Number(req.params.id) }
+    let query = { learner_id: parseInt(req.params.id) }
     let learnerGrades = await Grade.find(query)
     let sum = 0;
     let scoreCount = 0
@@ -188,7 +188,7 @@ router.patch('/:id/remove', async (req, res, next) => {
 // Update a class id
 router.patch("/class/:id", async (req, res, next) => {
   try {
-    let query = { class_id: Number(req.params.id) };
+    let query = { class_id: parseInt(req.params.id) };
 
     let result = await Grade.updateMany(query, {
       $set: { class_id: req.body.class_id },
@@ -219,7 +219,7 @@ router.delete('/:id', async (req, res, next) => {
 
 // Delete a class
 router.delete("/class/:id", async (req, res) => {
-  let query = { class_id: Number(req.params.id) };
+  let query = { class_id: parseInt(req.params.id) };
 
   let result = await Grade.deleteMany(query);
 
@@ -229,7 +229,7 @@ router.delete("/class/:id", async (req, res) => {
 
 // Delete a learner
 router.delete("/learner/:id", async (req, res) => {
-  let query = { learner_id: Number(req.params.id) };
+  let query = { learner_id: parseInt(req.params.id) };
 
   let result = await Grade.deleteMany(query);
 

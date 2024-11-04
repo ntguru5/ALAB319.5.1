@@ -86,7 +86,7 @@ router.get("/learner/:id/avg-class", async (req, res) => {
     const learnerId = req.params.id;
     const grades = await Grade.aggregate([
       {
-        $match: { learner_id: Number(learnerId) }
+        $match: { learner_id: parseInt(learnerId) }
       },
       {
         $unwind: { path: "$scores" }
@@ -150,8 +150,7 @@ router.get("/learner/:id/avg-class", async (req, res) => {
 // Get grades statistics
 router.get('/stats', async (req, res, next) => {
   try {
-    let collection = await db.collection('grades');
-    let result = await collection.aggregate([
+    let result = await Grade.aggregate([
       {
         $unwind: "$scores"
       },
@@ -210,20 +209,18 @@ router.get('/stats', async (req, res, next) => {
           }
         }
       }
-    ]).toArray();
-    if (!result) res.send("Not Found").status(404); // if not found
+    ]);
+    if (!result || result.length === 0) res.send("Not Found").status(404); // if not found
     else res.send(result[0]).status(200);
   } catch (err) {
     next(err);
   }
 })
 
-
 // Create GET route for learners within a class that has a class_id = :id
 router.get('/stats/:id', async (req, res, next) => {
   try {
-    let collection = await db.collection('grades');
-    let result = await collection.aggregate([
+    let result = await Grade.aggregate([
       {
         $match: { class_id: parseInt(req.params.id) }
       },
@@ -266,17 +263,17 @@ router.get('/stats/:id', async (req, res, next) => {
         $group: {
           _id: null,
           totalLearners: { $sum: 1 },
-          learnersAbove70: { $sum: { $cond: [{ $gte: ["$weightedAverage", 70] }, 1, 0] } },
+          learnersAbove50: { $sum: { $cond: [{ $gte: ["$weightedAverage", 50] }, 1, 0] } },
           totalAverage: { $sum: "$weightedAverage" }
         }
       },
       {
         $project: {
           totalLearners: 1,
-          learnersAbove70: 1,
-          percentageAbove70: {
+          learnersAbove50: 1,
+          percentageAbove50: {
             $multiply: [
-              { $divide: ["$learnersAbove70", "$totalLearners"] },
+              { $divide: ["$learnersAbove50", "$totalLearners"] },
               100
             ]
           },
@@ -285,13 +282,12 @@ router.get('/stats/:id', async (req, res, next) => {
           }
         }
       }
-    ]).toArray();
-    if (!result) res.send("Not Found").status(404);
+    ]);
+    if (!result || result.length === 0) res.send("Not Found").status(404);
     else res.send(result[0]).status(200);
   } catch (err) {
     next(err);
   }
 })
-
 
 export default router;
